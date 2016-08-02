@@ -22,7 +22,7 @@ func TestReconstructRequest(t *testing.T) {
 	}
 	payload := models.Payload{Request: request}
 
-	c := NewConstructor(req, payload)
+	c := NewConstructor(req, payload, "5555")
 	newRequest, err := c.ReconstructRequest()
 	Expect(err).To(BeNil())
 	Expect(newRequest.Method).To(Equal("POST"))
@@ -37,7 +37,7 @@ func TestReconstructRequestBodyPayload(t *testing.T) {
 	req, _ := http.NewRequest("GET", "http://example.com", nil)
 
 	payload := models.Payload{}
-	c := NewConstructor(req, payload)
+	c := NewConstructor(req, payload, "5555")
 	c.payload.Request.Method = "OPTIONS"
 	c.payload.Request.Destination = "newdestination"
 	c.payload.Request.Body = "new request body here"
@@ -62,7 +62,7 @@ func TestReconstructRequestHeadersPayload(t *testing.T) {
 	req.Header.Set("Header", "ValueX")
 
 	payload := models.Payload{}
-	c := NewConstructor(req, payload)
+	c := NewConstructor(req, payload, "5555")
 	c.payload.Request.Headers = req.Header
 	c.payload.Request.Destination = "destination.com"
 
@@ -86,7 +86,7 @@ func TestReconstructResponseHeadersPayload(t *testing.T) {
 
 	payload.Response.Headers = headers
 
-	c := NewConstructor(req, payload)
+	c := NewConstructor(req, payload, "5555")
 
 	response := c.ReconstructResponse()
 
@@ -100,7 +100,7 @@ func TestReconstructionFailure(t *testing.T) {
 	req, _ := http.NewRequest("GET", "http://example.com", nil)
 
 	payload := models.Payload{}
-	c := NewConstructor(req, payload)
+	c := NewConstructor(req, payload, "5555")
 	c.payload.Request.Method = "GET"
 	c.payload.Request.Body = "new request body here"
 

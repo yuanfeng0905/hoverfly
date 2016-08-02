@@ -8,32 +8,42 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/SpectoLabs/hoverfly/core/models"
+	"github.com/SpectoLabs/hoverfly/core/views"
 	"strings"
 )
 
 // Constructor - holds information about original request (which is needed to create response
 // and also holds payload
 type Constructor struct {
-	request *http.Request
-	payload models.Payload
+	request   *http.Request
+	payload   models.Payload
+	adminPort string
 }
 
 // NewConstructor - returns constructor instance
-func NewConstructor(req *http.Request, payload models.Payload) *Constructor {
-	c := &Constructor{request: req, payload: payload}
+func NewConstructor(req *http.Request, payload models.Payload, adminPort string) *Constructor {
+	c := &Constructor{request: req, payload: payload, adminPort: adminPort}
 	return c
 }
 
 // ApplyMiddleware - activates given middleware, middleware should be passed as string to executable, can be
 // full path.
 func (c *Constructor) ApplyMiddleware(middleware string) error {
-	var newPayload models.Payload
+	var newPayloadMiddlewareView views.PayloadMiddlewareView
 	var err error
 
+	middlewarePayload := views.PayloadMiddlewareView{
+		Request:  c.payload.Request.ConvertToRequestDetailsView(),
+		Response: c.payload.Response.ConvertToResponseDetailsView(),
+		HoverflyConfiguration: views.HoverflyConfigurationView{
+			AdminUrl: fmt.Sprintf("http://localhost:%v", c.adminPort),
+		},
+	}
+
 	if isMiddlewareLocal(middleware) {
-		newPayload, err = ExecuteMiddlewareLocally(middleware, c.payload)
+		newPayloadMiddlewareView, err = ExecuteMiddlewareLocally(middleware, middlewarePayload)
 	} else {
-		newPayload, err = ExecuteMiddlewareRemotely(middleware, c.payload)
+		newPayloadMiddlewareView, err = ExecuteMiddlewareRemotely(middleware, middlewarePayload)
 	}
 
 	if err != nil {
@@ -49,7 +59,7 @@ func (c *Constructor) ApplyMiddleware(middleware string) error {
 		"middleware": middleware,
 	}).Debug("Middleware transformation complete!")
 	// override payload with transformed new payload
-	c.payload = newPayload
+	c.payload = models.NewPayloadFromPayloadView(views.PayloadView{Request: newPayloadMiddlewareView.Request, Response: newPayloadMiddlewareView.Response})
 
 	return nil
 

@@ -8,7 +8,6 @@ import (
 
 	"errors"
 	log "github.com/Sirupsen/logrus"
-	"github.com/SpectoLabs/hoverfly/core/models"
 	"github.com/SpectoLabs/hoverfly/core/views"
 	"io/ioutil"
 	"net/http"
@@ -58,7 +57,7 @@ func Pipeline(cmds ...*exec.Cmd) (pipeLineOutput, collectedStandardError []byte,
 }
 
 // ExecuteMiddleware - takes command (middleware string) and payload, which is passed to middleware
-func ExecuteMiddlewareLocally(middlewares string, payload models.Payload) (models.Payload, error) {
+func ExecuteMiddlewareLocally(middlewares string, payload views.PayloadMiddlewareView) (views.PayloadMiddlewareView, error) {
 
 	mws := strings.Split(middlewares, "|")
 	var cmdList []*exec.Cmd
@@ -71,7 +70,7 @@ func ExecuteMiddlewareLocally(middlewares string, payload models.Payload) (model
 	}
 
 	// getting payload
-	bts, err := json.Marshal(payload.ConvertToPayloadView())
+	bts, err := json.Marshal(payload)
 
 	if log.GetLevel() == log.DebugLevel {
 		log.WithFields(log.Fields{
@@ -117,9 +116,9 @@ func ExecuteMiddlewareLocally(middlewares string, payload models.Payload) (model
 	}
 
 	if len(mwOutput) > 0 {
-		var newPayloadView views.PayloadView
+		var newPayload views.PayloadMiddlewareView
 
-		err = json.Unmarshal(mwOutput, &newPayloadView)
+		err = json.Unmarshal(mwOutput, &newPayload)
 
 		if err != nil {
 			log.WithFields(log.Fields{
@@ -135,7 +134,7 @@ func ExecuteMiddlewareLocally(middlewares string, payload models.Payload) (model
 				}).Debug("payload after modifications")
 			}
 			// payload unmarshalled into Payload struct, returning it
-			return models.NewPayloadFromPayloadView(newPayloadView), nil
+			return newPayload, nil
 		}
 	} else {
 
@@ -148,8 +147,8 @@ func ExecuteMiddlewareLocally(middlewares string, payload models.Payload) (model
 
 }
 
-func ExecuteMiddlewareRemotely(middleware string, payload models.Payload) (models.Payload, error) {
-	bts, err := json.Marshal(payload.ConvertToPayloadView())
+func ExecuteMiddlewareRemotely(middleware string, payload views.PayloadMiddlewareView) (views.PayloadMiddlewareView, error) {
+	bts, err := json.Marshal(payload)
 
 	req, err := http.NewRequest("POST", middleware, bytes.NewBuffer(bts))
 	if err != nil {
@@ -180,14 +179,14 @@ func ExecuteMiddlewareRemotely(middleware string, payload models.Payload) (model
 		return payload, err
 	}
 
-	var newPayloadView views.PayloadView
+	var newPayload views.PayloadMiddlewareView
 
-	err = json.Unmarshal(newPayloadBytes, &newPayloadView)
+	err = json.Unmarshal(newPayloadBytes, &newPayload)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err.Error(),
 		}).Error("Error when trying to serialize response from remote middleware")
 		return payload, err
 	}
-	return models.NewPayloadFromPayloadView(newPayloadView), nil
+	return newPayload, nil
 }

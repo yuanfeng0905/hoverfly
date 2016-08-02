@@ -12,7 +12,7 @@ func TestSynthesizeResponse(t *testing.T) {
 	req, err := http.NewRequest("GET", "http://example.com", nil)
 	Expect(err).To(BeNil())
 
-	sr, err := SynthesizeResponse(req, "./examples/middleware/synthetic_service/synthetic.py")
+	sr, err := SynthesizeResponse(req, "./examples/middleware/synthetic_service/synthetic.py", "5555")
 	Expect(err).To(BeNil())
 
 	Expect(sr.StatusCode).To(Equal(http.StatusOK))
@@ -24,7 +24,7 @@ func TestSynthesizeResponseWOMiddleware(t *testing.T) {
 	req, err := http.NewRequest("GET", "http://example.com", nil)
 	Expect(err).To(BeNil())
 
-	_, err = SynthesizeResponse(req, "")
+	_, err = SynthesizeResponse(req, "", "5555")
 	Expect(err).ToNot(BeNil())
 
 	Expect(err).To(MatchError("Synthesize failed, middleware not provided"))
@@ -36,6 +36,6 @@ func TestSynthesizeMiddlewareFailure(t *testing.T) {
 	req, err := http.NewRequest("GET", "http://example.com", nil)
 	Expect(err).To(BeNil())
 
-	_, err = SynthesizeResponse(req, "./examples/middleware/this_is_not_there.py")
+	_, err = SynthesizeResponse(req, "./examples/middleware/this_is_not_there.py", "5555")
 	Expect(err).ToNot(BeNil())
 }

@@ -2,7 +2,6 @@ package hoverfly
 
 import (
 	"encoding/json"
-	"github.com/SpectoLabs/hoverfly/core/models"
 	"github.com/SpectoLabs/hoverfly/core/views"
 	"github.com/gorilla/mux"
 	. "github.com/onsi/gomega"
@@ -17,10 +16,10 @@ func TestChangeBodyMiddleware(t *testing.T) {
 
 	command := "./examples/middleware/modify_response/modify_response.py"
 
-	resp := models.ResponseDetails{Status: 201, Body: "original body"}
-	req := models.RequestDetails{Path: "/", Method: "GET", Destination: "hostname-x", Query: ""}
+	resp := views.ResponseDetailsView{Status: 201, Body: "original body"}
+	req := views.RequestDetailsView{Path: "/", Method: "GET", Destination: "hostname-x", Query: ""}
 
-	payload := models.Payload{Response: resp, Request: req}
+	payload := views.PayloadMiddlewareView{Response: resp, Request: req, HoverflyConfiguration: views.HoverflyConfigurationView{AdminUrl: "http://localhost:5555"}}
 
 	newPayload, err := ExecuteMiddlewareLocally(command, payload)
 
@@ -33,10 +32,10 @@ func TestMalformedPayloadMiddleware(t *testing.T) {
 
 	command := "./examples/middleware/ruby_echo/echo.rb"
 
-	resp := models.ResponseDetails{Status: 201, Body: "original body"}
-	req := models.RequestDetails{Path: "/", Method: "GET", Destination: "hostname-x", Query: ""}
+	resp := views.ResponseDetailsView{Status: 201, Body: "original body"}
+	req := views.RequestDetailsView{Path: "/", Method: "GET", Destination: "hostname-x", Query: ""}
 
-	payload := models.Payload{Response: resp, Request: req}
+	payload := views.PayloadMiddlewareView{Response: resp, Request: req, HoverflyConfiguration: views.HoverflyConfigurationView{AdminUrl: "http://localhost:5555"}}
 
 	newPayload, err := ExecuteMiddlewareLocally(command, payload)
 
@@ -49,10 +48,10 @@ func TestMakeCustom404(t *testing.T) {
 
 	command := "go run ./examples/middleware/go_example/change_to_custom_404.go"
 
-	resp := models.ResponseDetails{Status: 201, Body: "original body"}
-	req := models.RequestDetails{Path: "/", Method: "GET", Destination: "hostname-x", Query: ""}
+	resp := views.ResponseDetailsView{Status: 201, Body: "original body"}
+	req := views.RequestDetailsView{Path: "/", Method: "GET", Destination: "hostname-x", Query: ""}
 
-	payload := models.Payload{Response: resp, Request: req}
+	payload := views.PayloadMiddlewareView{Response: resp, Request: req, HoverflyConfiguration: views.HoverflyConfigurationView{AdminUrl: "http://localhost:5555"}}
 
 	newPayload, err := ExecuteMiddlewareLocally(command, payload)
 
@@ -67,10 +66,9 @@ func TestReflectBody(t *testing.T) {
 
 	command := "./examples/middleware/reflect_body/reflect_body.py"
 
-	req := models.RequestDetails{Path: "/", Method: "GET", Destination: "hostname-x", Query: "", Body: "request_body_here"}
+	req := views.RequestDetailsView{Path: "/", Method: "GET", Destination: "hostname-x", Query: "", Body: "request_body_here"}
 
-	payload := models.Payload{Request: req}
-
+	payload := views.PayloadMiddlewareView{Request: req, HoverflyConfiguration: views.HoverflyConfigurationView{AdminUrl: "http://localhost:5555"}}
 	newPayload, err := ExecuteMiddlewareLocally(command, payload)
 
 	Expect(err).To(BeNil())
@@ -108,8 +106,8 @@ func TestExecuteMiddlewareRemotely(t *testing.T) {
 	server := httptest.NewServer(muxRouter)
 	defer server.Close()
 
-	testPayload := models.Payload{
-		Response: models.ResponseDetails{
+	testPayload := views.PayloadMiddlewareView{
+		Response: views.ResponseDetailsView{
 			Body: "Normal body",
 		},
 	}
@@ -129,8 +127,8 @@ func TestExecuteMiddlewareRemotely_ReturnsErrorIfDoesntGetA200_AndSamePayload(t 
 	server := httptest.NewServer(muxRouter)
 	defer server.Close()
 
-	testPayload := models.Payload{
-		Response: models.ResponseDetails{
+	testPayload := views.PayloadMiddlewareView{
+		Response: views.ResponseDetailsView{
 			Body: "Normal body",
 		},
 	}
@@ -150,8 +148,8 @@ func TestExecuteMiddlewareRemotely_ReturnsErrorIfNoPayloadOnResponse_AnOriginalP
 	server := httptest.NewServer(muxRouter)
 	defer server.Close()
 
-	testPayload := models.Payload{
-		Response: models.ResponseDetails{
+	testPayload := views.PayloadMiddlewareView{
+		Response: views.ResponseDetailsView{
 			Body: "Normal body",
 		},
 	}

@@ -172,7 +172,7 @@ func (hf *Hoverfly) SetMiddleware(middleware string) error {
 			Headers: map[string][]string{"test_header": []string{"true"}},
 		},
 	}
-	c := NewConstructor(nil, testPayload)
+	c := NewConstructor(nil, testPayload, hf.Cfg.AdminPort)
 	err := c.ApplyMiddleware(middleware)
 	if err != nil {
 		return err
@@ -217,7 +217,7 @@ func (hf *Hoverfly) processRequest(req *http.Request) (*http.Request, *http.Resp
 		return req, newResponse
 
 	} else if mode == SynthesizeMode {
-		response, err := SynthesizeResponse(req, hf.Cfg.Middleware)
+		response, err := SynthesizeResponse(req, hf.Cfg.Middleware, hf.Cfg.AdminPort)
 
 		if err != nil {
 			return req, hoverflyError(req, err, "Could not create synthetic response!", http.StatusServiceUnavailable)
@@ -350,7 +350,7 @@ func (hf *Hoverfly) doRequest(request *http.Request) (*http.Request, *http.Respo
 		}
 		payload.Request = rd
 
-		c := NewConstructor(request, payload)
+		c := NewConstructor(request, payload, hf.Cfg.AdminPort)
 		err = c.ApplyMiddleware(hf.Cfg.Middleware)
 
 		if err != nil {
@@ -438,7 +438,7 @@ func (hf *Hoverfly) getResponse(req *http.Request) *http.Response {
 		Response: *responseDetails,
 	}
 
-	c := NewConstructor(req, *payload)
+	c := NewConstructor(req, *payload, hf.Cfg.AdminPort)
 	if hf.Cfg.Middleware != "" {
 		_ = c.ApplyMiddleware(hf.Cfg.Middleware)
 	}
@@ -491,7 +491,7 @@ func (hf *Hoverfly) modifyRequestResponse(req *http.Request, middleware string) 
 
 	payload := models.Payload{Response: r, Request: rd}
 
-	c := NewConstructor(req, payload)
+	c := NewConstructor(req, payload, hf.Cfg.AdminPort)
 	// applying middleware to modify response
 	err = c.ApplyMiddleware(middleware)
 

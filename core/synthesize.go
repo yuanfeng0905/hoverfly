@@ -11,7 +11,7 @@ import (
 )
 
 // SynthesizeResponse calls middleware to populate response data, nothing gets pass proxy
-func SynthesizeResponse(req *http.Request, middleware string) (*http.Response, error) {
+func SynthesizeResponse(req *http.Request, middleware, adminPort string) (*http.Response, error) {
 
 	// this is mainly for testing, since when you create a request during tests
 	// its body will be nil, that results in bad things during read
@@ -50,7 +50,7 @@ func SynthesizeResponse(req *http.Request, middleware string) (*http.Response, e
 		"destination": request.Destination,
 	}).Debug("Synthesizing new response")
 
-	c := NewConstructor(req, payload)
+	c := NewConstructor(req, payload, adminPort)
 
 	if middleware != "" {
 		err := c.ApplyMiddleware(middleware)

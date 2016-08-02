@@ -10,6 +10,17 @@ type PayloadView struct {
 	Request  RequestDetailsView  `json:"request"`
 }
 
+// PayloadMiddlewareView is used when marshalling and unmarshalling payloads via Middleware.
+type PayloadMiddlewareView struct {
+	Response              ResponseDetailsView       `json:"response"`
+	Request               RequestDetailsView        `json:"request"`
+	HoverflyConfiguration HoverflyConfigurationView `json:"hoverflyConfiguration"`
+}
+
+type HoverflyConfigurationView struct {
+	AdminUrl string `json:"url"`
+}
+
 // RequestDetailsView is used when marshalling and unmarshalling RequestDetails
 type RequestDetailsView struct {
 	Path        string              `json:"path"`

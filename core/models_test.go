@@ -116,7 +116,7 @@ func TestMatchOnRequestBody(t *testing.T) {
 		payload := models.Payload{Response: resp}
 
 		// creating response
-		c := NewConstructor(request, payload)
+		c := NewConstructor(request, payload, "5555")
 		response := c.ReconstructResponse()
 
 		dbClient.save(request, requestBody, response, []byte(resp.Body))
