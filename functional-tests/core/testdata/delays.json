@@ -1,11 +1,11 @@
 {
   "data": [
     {
-      "urlPattern": "virtual\\.com",
+      "destination": "www.virtual.com",
       "delay": 100
     },
     {
-      "urlPattern": "virtual\\.com",
+      "destination": "www.virtual.com",
       "delay": 110
     }
   ]

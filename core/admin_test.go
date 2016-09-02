@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/SpectoLabs/hoverfly/core/models"
+	. "github.com/SpectoLabs/hoverfly/core/util"
 	"github.com/SpectoLabs/hoverfly/core/views"
 	. "github.com/onsi/gomega"
 	"io/ioutil"
@@ -925,8 +926,8 @@ func TestGetResponseDelays(t *testing.T) {
 	defer dbClient.RequestCache.DeleteData()
 
 	delay := models.ResponseDelay{
-		UrlPattern: ".",
-		Delay:      100,
+		Destination: StringToPointer("*"),
+		Delay:       100,
 	}
 	delays := models.ResponseDelayList{delay}
 	dbClient.UpdateResponseDelays(delays)
@@ -957,8 +958,8 @@ func TestDeleteAllResponseDelaysHandler(t *testing.T) {
 	defer server.Close()
 	defer dbClient.RequestCache.DeleteData()
 	delay := models.ResponseDelay{
-		UrlPattern: ".",
-		Delay:      100,
+		Destination: StringToPointer("*"),
+		Delay:       100,
 	}
 	delays := models.ResponseDelayList{delay}
 	dbClient.ResponseDelays = &delays
@@ -984,12 +985,12 @@ func TestUpdateResponseDelays(t *testing.T) {
 	m := getBoneRouter(dbClient)
 
 	delayOne := models.ResponseDelay{
-		UrlPattern: ".",
-		Delay:      100,
+		Destination: StringToPointer("*"),
+		Delay:       100,
 	}
 	delayTwo := models.ResponseDelay{
-		UrlPattern: "example",
-		Delay:      100,
+		Destination: StringToPointer("*"),
+		Delay:       100,
 	}
 	delays := models.ResponseDelayList{delayOne, delayTwo}
 	delayJson := models.ResponseDelayPayload{Data: &delays}
@@ -1041,52 +1042,6 @@ func TestInvalidJSONSemanticsUpdateResponseDelays(t *testing.T) {
 	m := getBoneRouter(dbClient)
 
 	delayJson := "{ \"madeupfield\" : \"somevalue\" }"
-
-	req, err := http.NewRequest("PUT", "/api/delays", ioutil.NopCloser(bytes.NewBuffer([]byte(delayJson))))
-	Expect(err).To(BeNil())
-
-	//The response recorder used to record HTTP responses
-	rec := httptest.NewRecorder()
-
-	m.ServeHTTP(rec, req)
-	Expect(rec.Code).To(Equal(422))
-
-	// normal equality checking doesn't work on slices (!!)
-	Expect(dbClient.ResponseDelays).To(Equal(&models.ResponseDelayList{}))
-}
-
-func TestJSONWithInvalidHostPatternUpdateResponseDelays(t *testing.T) {
-	RegisterTestingT(t)
-
-	server, dbClient := testTools(200, `{'message': 'here'}`)
-	defer server.Close()
-	defer dbClient.RequestCache.DeleteData()
-	m := getBoneRouter(dbClient)
-
-	delayJson := "{ \"data\": [{\"hostPattern\": \"*\", \"delay\": 100}] }"
-
-	req, err := http.NewRequest("PUT", "/api/delays", ioutil.NopCloser(bytes.NewBuffer([]byte(delayJson))))
-	Expect(err).To(BeNil())
-
-	//The response recorder used to record HTTP responses
-	rec := httptest.NewRecorder()
-
-	m.ServeHTTP(rec, req)
-	Expect(rec.Code).To(Equal(422))
-
-	// normal equality checking doesn't work on slices (!!)
-	Expect(dbClient.ResponseDelays).To(Equal(&models.ResponseDelayList{}))
-}
-
-func TestJSONWithMissingFieldUpdateResponseDelays(t *testing.T) {
-	RegisterTestingT(t)
-
-	server, dbClient := testTools(200, `{'message': 'here'}`)
-	defer server.Close()
-	defer dbClient.RequestCache.DeleteData()
-	m := getBoneRouter(dbClient)
-
-	delayJson := "{ \"data\" : [{\"hostPattern\": \".\"}] }"
 
 	req, err := http.NewRequest("PUT", "/api/delays", ioutil.NopCloser(bytes.NewBuffer([]byte(delayJson))))
 	Expect(err).To(BeNil())

@@ -2,18 +2,20 @@ package models
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"regexp"
-	"strings"
+	"github.com/ryanuber/go-glob"
 	"time"
 )
 
 type ResponseDelay struct {
-	UrlPattern string `json:"urlPattern"`
-	HttpMethod string `json:"httpMethod"`
-	Delay      int    `json:"delay"`
+	Path        *string             `json:"path"`
+	Method      *string             `json:"method"`
+	Destination *string             `json:"destination"`
+	Scheme      *string             `json:"scheme"`
+	Query       *string             `json:"query"`
+	Body        *string             `json:"body"`
+	Headers     map[string][]string `json:"headers"`
+	Delay       int                 `json:"delay"`
 }
 
 type ResponseDelayPayload struct {
@@ -24,23 +26,8 @@ type ResponseDelayList []ResponseDelay
 
 type ResponseDelays interface {
 	Json() []byte
-	GetDelay(request RequestDetails) *ResponseDelay
+	GetDelay(request RequestDetails, webserver bool) *ResponseDelay
 	Len() int
-}
-
-func ValidateResponseDelayJson(j ResponseDelayPayload) (err error) {
-	if j.Data != nil {
-		for _, delay := range *j.Data {
-			if delay.UrlPattern != "" && delay.Delay != 0 {
-				if _, err := regexp.Compile(delay.UrlPattern); err != nil {
-					return errors.New(fmt.Sprintf("Response delay entry skipped due to invalid pattern : %s", delay.UrlPattern))
-				}
-			} else {
-				return errors.New(fmt.Sprintf("Config error - Missing values found in: %v", delay))
-			}
-		}
-	}
-	return nil
 }
 
 func (this *ResponseDelay) Execute() {
@@ -50,15 +37,33 @@ func (this *ResponseDelay) Execute() {
 	log.Info("Response delay completed")
 }
 
-func (this *ResponseDelayList) GetDelay(request RequestDetails) *ResponseDelay {
-	for _, val := range *this {
-		match := regexp.MustCompile(val.UrlPattern).MatchString(request.Destination + request.Path)
-		if match {
-			if val.HttpMethod == "" || strings.EqualFold(val.HttpMethod, request.Method) {
-				log.Info("Found response delay setting for this request host: ", val)
-				return &val
+func (this *ResponseDelayList) GetDelay(request RequestDetails, webserver bool) *ResponseDelay {
+	// iterate through the request templates, looking for template to match request
+	for _, entry := range *this {
+		if entry.Body != nil && !glob.Glob(*entry.Body, request.Body) {
+			continue
+		}
+
+		if !webserver {
+			if entry.Destination != nil && !glob.Glob(*entry.Destination, request.Destination) {
+				continue
 			}
 		}
+		if entry.Path != nil && !glob.Glob(*entry.Path, request.Path) {
+			continue
+		}
+		if entry.Query != nil && !glob.Glob(*entry.Query, request.Query) {
+			continue
+		}
+		if entry.Method != nil && !glob.Glob(*entry.Method, request.Method) {
+			continue
+		}
+		if entry.Scheme != nil && !glob.Glob(*entry.Scheme, request.Scheme) {
+			continue
+		}
+
+		// return the first template to match
+		return &entry
 	}
 	return nil
 }

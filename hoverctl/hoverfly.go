@@ -25,9 +25,14 @@ type APIDelaySchema struct {
 }
 
 type ResponseDelaySchema struct {
-	UrlPattern string `json:"urlpattern"`
-	Delay      int    `json:"delay"`
-	HttpMethod string `json:"httpmethod"`
+	Path        *string             `json:"path"`
+	Method      *string             `json:"method"`
+	Destination *string             `json:"destination"`
+	Scheme      *string             `json:"scheme"`
+	Query       *string             `json:"query"`
+	Body        *string             `json:"body"`
+	Headers     map[string][]string `json:"headers"`
+	Delay       int                 `json:"delay"`
 }
 
 type HoverflyAuthSchema struct {

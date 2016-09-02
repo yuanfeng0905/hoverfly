@@ -1071,18 +1071,9 @@ func (d *Hoverfly) UpdateResponseDelaysHandler(w http.ResponseWriter, req *http.
 		mr.Message = fmt.Sprintf("Failed to get data from the request body.")
 		w.WriteHeader(422)
 	} else {
-		err = models.ValidateResponseDelayJson(rd)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"error": err.Error(),
-			}).Error("Error validating response delays config supplied")
-			mr.Message = fmt.Sprintf("Failed to validate response delays config. Error: %s", err.Error())
-			w.WriteHeader(422)
-		} else {
-			d.UpdateResponseDelays(*rd.Data)
-			mr.Message = "Response delays updated."
-			w.WriteHeader(201)
-		}
+		d.UpdateResponseDelays(*rd.Data)
+		mr.Message = "Response delays updated."
+		w.WriteHeader(201)
 	}
 
 	b, err := mr.Encode()

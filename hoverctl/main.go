@@ -283,10 +283,10 @@ func main() {
 func printResponseDelays(delays []ResponseDelaySchema) {
 	for _, delay := range delays {
 		var delayString string
-		if delay.HttpMethod != "" {
-			delayString = fmt.Sprintf("%v | %v - %vms", delay.HttpMethod, delay.UrlPattern, delay.Delay)
+		if delay.Method != nil {
+			delayString = fmt.Sprintf("%v | %v - %vms", *delay.Method, *delay.Destination, delay.Delay)
 		} else {
-			delayString = fmt.Sprintf("%v - %vms", delay.UrlPattern, delay.Delay)
+			delayString = fmt.Sprintf("%v - %vms", *delay.Destination, delay.Delay)
 		}
 		log.Info(delayString)
 	}

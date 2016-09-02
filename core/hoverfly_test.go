@@ -163,7 +163,7 @@ func (this *ResponseDelayListStub) Len() int {
 	return this.Len()
 }
 
-func (this *ResponseDelayListStub) GetDelay(request models.RequestDetails) *models.ResponseDelay {
+func (this *ResponseDelayListStub) GetDelay(request models.RequestDetails, webserver bool) *models.ResponseDelay {
 	this.gotDelays++
 	return nil
 }

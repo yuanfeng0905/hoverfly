@@ -260,7 +260,7 @@ func (hf *Hoverfly) processRequest(req *http.Request) *http.Response {
 		}
 	}
 
-	respDelay := hf.ResponseDelays.GetDelay(requestDetails)
+	respDelay := hf.ResponseDelays.GetDelay(requestDetails, hf.Cfg.Webserver)
 	if respDelay != nil {
 		respDelay.Execute()
 	}

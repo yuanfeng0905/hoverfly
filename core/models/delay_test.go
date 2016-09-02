@@ -1,189 +1,382 @@
 package models
 
 import (
-	"encoding/json"
+	. "github.com/SpectoLabs/hoverfly/core/util"
 	. "github.com/onsi/gomega"
 	"testing"
 )
 
-func TestConvertJsonStringToResponseDelayConfig(t *testing.T) {
-	RegisterTestingT(t)
-
-	jsonConf := `
-	{
-		"data": [{
-				"urlPattern": ".",
-				"delay": 1
-			}]
-	}`
-	var responseDelayJson ResponseDelayPayload
-	json.Unmarshal([]byte(jsonConf), &responseDelayJson)
-	err := ValidateResponseDelayJson(responseDelayJson)
-	Expect(err).To(BeNil())
-}
-
-func TestErrorIfHostPatternNotSet(t *testing.T) {
-	RegisterTestingT(t)
-
-	jsonConf := `
-	{
-		"data": [{
-				"delay": 2
-			}]
-	}`
-	var responseDelayJson ResponseDelayPayload
-	json.Unmarshal([]byte(jsonConf), &responseDelayJson)
-	err := ValidateResponseDelayJson(responseDelayJson)
-	Expect(err).To(Not(BeNil()))
-}
-
-func TestErrprIfDelayNotSet(t *testing.T) {
-	RegisterTestingT(t)
-
-	jsonConf := `
-	{
-		"data": [{
-				"urlPattern": "."
-			}]
-	}`
-	var responseDelayJson ResponseDelayPayload
-	json.Unmarshal([]byte(jsonConf), &responseDelayJson)
-	err := ValidateResponseDelayJson(responseDelayJson)
-	Expect(err).To(Not(BeNil()))
-}
-
-func TestHostPatternMustBeAValidRegexPattern(t *testing.T) {
-	RegisterTestingT(t)
-
-	jsonConf := `
-	{
-		"data": [{
-				"urlPattern": "*",
-				"delay": 1
-			}]
-	}`
-	var responseDelayJson ResponseDelayPayload
-	json.Unmarshal([]byte(jsonConf), &responseDelayJson)
-	err := ValidateResponseDelayJson(responseDelayJson)
-	Expect(err).To(Not(BeNil()))
-}
-
-func TestErrorIfHostPatternUsed(t *testing.T) {
-	RegisterTestingT(t)
-
-	jsonConf := `
-	{
-		"data": [{
-				"hostPattern": ".",
-				"delay": 1
-			}]
-	}`
-	var responseDelayJson ResponseDelayPayload
-	json.Unmarshal([]byte(jsonConf), &responseDelayJson)
-	err := ValidateResponseDelayJson(responseDelayJson)
-	Expect(err).To(Not(BeNil()))
-}
-
-func TestGetDelayWithRegexMatch(t *testing.T) {
+func TestGetDelayWithAMatchingDestination(t *testing.T) {
 	RegisterTestingT(t)
 
 	delay := ResponseDelay{
-		UrlPattern: "example(.+)",
-		Delay:      100,
+		Destination: StringToPointer("example.com"),
+		Delay:       100,
 	}
 	delays := ResponseDelayList{delay}
 
 	request1 := RequestDetails{
-		Destination: "delayexample.com",
-		Method:      "method-dummy",
+		Destination: "example.com",
 	}
 
-	delayMatch := delays.GetDelay(request1)
-	Expect(*delayMatch).To(Equal(delay))
+	Expect(*delays.GetDelay(request1, false)).To(Equal(delay))
 
 	request2 := RequestDetails{
 		Destination: "nodelay.com",
-		Method:      "method-dummy",
 	}
 
-	delayMatch = delays.GetDelay(request2)
-	Expect(delayMatch).To(BeNil())
+	Expect(delays.GetDelay(request2, false)).To(BeNil())
 }
 
-func TestMultipleMatchingDelaysReturnsTheFirst(t *testing.T) {
+func TestGetDelayWithAMatchingDestinationWithWildcard(t *testing.T) {
 	RegisterTestingT(t)
 
-	delayOne := ResponseDelay{
-		UrlPattern: "example.com",
-		Delay:      100,
+	delay := ResponseDelay{
+		Destination: StringToPointer("example.*"),
+		Delay:       100,
 	}
-	delayTwo := ResponseDelay{
-		UrlPattern: "example",
-		Delay:      100,
-	}
-	delays := ResponseDelayList{delayOne, delayTwo}
+	delays := ResponseDelayList{delay}
 
 	request1 := RequestDetails{
-		Destination: "delayexample.com",
-		Method:      "method-dummy",
+		Destination: "example.com",
 	}
 
-	delayMatch := delays.GetDelay(request1)
-	Expect(*delayMatch).To(Equal(delayOne))
+	Expect(*delays.GetDelay(request1, false)).To(Equal(delay))
+
+	request2 := RequestDetails{
+		Destination: "example.net",
+	}
+
+	Expect(*delays.GetDelay(request2, false)).To(Equal(delay))
+
+	request3 := RequestDetails{
+		Destination: "notexample.com",
+	}
+
+	Expect(delays.GetDelay(request3, false)).To(BeNil())
 }
 
-func TestNoMatchIfMethodsDontMatch(t *testing.T) {
+func TestGetDelayWithAMatchingPath(t *testing.T) {
 	RegisterTestingT(t)
 
 	delay := ResponseDelay{
-		UrlPattern: "example.com",
-		Delay:      100,
-		HttpMethod: "PURPLE",
+		Path:  StringToPointer("/api/example"),
+		Delay: 100,
 	}
 	delays := ResponseDelayList{delay}
 
-	request := RequestDetails{
-		Destination: "delayexample.com",
-		Method:      "GET",
+	request1 := RequestDetails{
+		Path: "/api/example",
 	}
 
-	delayMatch := delays.GetDelay(request)
-	Expect(delayMatch).To(BeNil())
+	Expect(*delays.GetDelay(request1, false)).To(Equal(delay))
+
+	request2 := RequestDetails{
+		Path: "/api/nodelay",
+	}
+
+	Expect(delays.GetDelay(request2, false)).To(BeNil())
 }
 
-func TestReturnMatchIfMethodsMatch(t *testing.T) {
+func TestGetDelayWithAMatchingPathWithWildcard(t *testing.T) {
 	RegisterTestingT(t)
 
 	delay := ResponseDelay{
-		UrlPattern: "example.com",
-		Delay:      100,
-		HttpMethod: "GET",
+		Path:  StringToPointer("/*/example"),
+		Delay: 100,
 	}
 	delays := ResponseDelayList{delay}
 
-	request := RequestDetails{
-		Destination: "delayexample.com",
-		Method:      "GET",
+	request1 := RequestDetails{
+		Path: "/api/example",
 	}
 
-	delayMatch := delays.GetDelay(request)
-	Expect(*delayMatch).To(Equal(delay))
+	Expect(*delays.GetDelay(request1, false)).To(Equal(delay))
+
+	request2 := RequestDetails{
+		Path: "/something/example",
+	}
+
+	Expect(*delays.GetDelay(request2, false)).To(Equal(delay))
+
+	request3 := RequestDetails{
+		Path: "notexample.com",
+	}
+
+	Expect(delays.GetDelay(request3, false)).To(BeNil())
 }
 
-func TestIfDelayMethodBlankThenMatchesAnyMethod(t *testing.T) {
+func TestGetDelayWithAMatchingQuery(t *testing.T) {
 	RegisterTestingT(t)
 
 	delay := ResponseDelay{
-		UrlPattern: "example(.+)",
-		Delay:      100,
+		Query: StringToPointer("?q=query"),
+		Delay: 100,
 	}
 	delays := ResponseDelayList{delay}
 
-	request := RequestDetails{
-		Destination: "delayexample.com",
-		Method:      "method-dummy",
+	request1 := RequestDetails{
+		Query: "?q=query",
 	}
 
-	delayMatch := delays.GetDelay(request)
-	Expect(*delayMatch).To(Equal(delay))
+	Expect(*delays.GetDelay(request1, false)).To(Equal(delay))
+
+	request2 := RequestDetails{
+		Query: "?q=different",
+	}
+
+	Expect(delays.GetDelay(request2, false)).To(BeNil())
+}
+
+func TestGetDelayWithAMatchingQueryWithWildcard(t *testing.T) {
+	RegisterTestingT(t)
+
+	delay := ResponseDelay{
+		Query: StringToPointer("?q=*"),
+		Delay: 100,
+	}
+	delays := ResponseDelayList{delay}
+
+	request1 := RequestDetails{
+		Query: "?q=query",
+	}
+
+	Expect(*delays.GetDelay(request1, false)).To(Equal(delay))
+
+	request2 := RequestDetails{
+		Query: "?q=different",
+	}
+
+	Expect(*delays.GetDelay(request2, false)).To(Equal(delay))
+
+	request3 := RequestDetails{
+		Query: "?p=different-key",
+	}
+
+	Expect(delays.GetDelay(request3, false)).To(BeNil())
+
+}
+
+func TestGetDelayWithAMatchingMethod(t *testing.T) {
+	RegisterTestingT(t)
+
+	delay := ResponseDelay{
+		Method: StringToPointer("GET"),
+		Delay:  100,
+	}
+	delays := ResponseDelayList{delay}
+
+	request1 := RequestDetails{
+		Method: "GET",
+	}
+
+	Expect(*delays.GetDelay(request1, false)).To(Equal(delay))
+
+	request2 := RequestDetails{
+		Path: "POST",
+	}
+
+	Expect(delays.GetDelay(request2, false)).To(BeNil())
+}
+
+func TestGetDelayWithAMatchingMethodWithWildcard(t *testing.T) {
+	RegisterTestingT(t)
+
+	delay := ResponseDelay{
+		Method: StringToPointer("*T"),
+		Delay:  100,
+	}
+	delays := ResponseDelayList{delay}
+
+	request1 := RequestDetails{
+		Method: "GET",
+	}
+
+	Expect(*delays.GetDelay(request1, false)).To(Equal(delay))
+
+	request2 := RequestDetails{
+		Method: "POST",
+	}
+
+	Expect(*delays.GetDelay(request2, false)).To(Equal(delay))
+
+	request3 := RequestDetails{
+		Method: "DELETE",
+	}
+
+	Expect(delays.GetDelay(request3, false)).To(BeNil())
+}
+
+func TestGetDelayWithAMatchingScheme(t *testing.T) {
+	RegisterTestingT(t)
+
+	delay := ResponseDelay{
+		Scheme: StringToPointer("https"),
+		Delay:  100,
+	}
+	delays := ResponseDelayList{delay}
+
+	request1 := RequestDetails{
+		Scheme: "https",
+	}
+
+	Expect(*delays.GetDelay(request1, false)).To(Equal(delay))
+
+	request2 := RequestDetails{
+		Scheme: "trhrhr",
+	}
+
+	Expect(delays.GetDelay(request2, false)).To(BeNil())
+}
+
+func TestGetDelayWithAMatchingSchemeWithWildcard(t *testing.T) {
+	RegisterTestingT(t)
+
+	delay := ResponseDelay{
+		Scheme: StringToPointer("h*ps"),
+		Delay:  100,
+	}
+	delays := ResponseDelayList{delay}
+
+	request1 := RequestDetails{
+		Scheme: "https",
+	}
+
+	Expect(*delays.GetDelay(request1, false)).To(Equal(delay))
+
+	request2 := RequestDetails{
+		Scheme: "trhrhr",
+	}
+
+	Expect(delays.GetDelay(request2, false)).To(BeNil())
+}
+
+func TestGetDelayWithAMatchingBody(t *testing.T) {
+	RegisterTestingT(t)
+
+	delay := ResponseDelay{
+		Body:  StringToPointer("this is a body"),
+		Delay: 100,
+	}
+	delays := ResponseDelayList{delay}
+
+	request1 := RequestDetails{
+		Body: "this is a body",
+	}
+
+	Expect(*delays.GetDelay(request1, false)).To(Equal(delay))
+
+	request2 := RequestDetails{
+		Body: "this is another body",
+	}
+
+	Expect(delays.GetDelay(request2, false)).To(BeNil())
+}
+
+func TestGetDelayWithAMatchingBodyWithWildcard(t *testing.T) {
+	RegisterTestingT(t)
+
+	delay := ResponseDelay{
+		Body:  StringToPointer("this is a *"),
+		Delay: 100,
+	}
+	delays := ResponseDelayList{delay}
+
+	request1 := RequestDetails{
+		Body: "this is a cat",
+	}
+
+	Expect(*delays.GetDelay(request1, false)).To(Equal(delay))
+
+	request2 := RequestDetails{
+		Body: "this is not a cat",
+	}
+
+	Expect(delays.GetDelay(request2, false)).To(BeNil())
+}
+
+func TestGetDelayWithAMatchingDestinationAndPath(t *testing.T) {
+	RegisterTestingT(t)
+
+	delay := ResponseDelay{
+		Destination: StringToPointer("example.com"),
+		Path:        StringToPointer("/api/delay"),
+		Delay:       100,
+	}
+	delays := ResponseDelayList{delay}
+
+	request1 := RequestDetails{
+		Destination: "example.com",
+		Path:        "/api/delay",
+	}
+
+	Expect(*delays.GetDelay(request1, false)).To(Equal(delay))
+
+	request2 := RequestDetails{
+		Destination: "example.com",
+		Path:        "/api/nodelay",
+	}
+
+	Expect(delays.GetDelay(request2, false)).To(BeNil())
+
+	request3 := RequestDetails{
+		Destination: "nodelay.com",
+		Path:        "/api/delay",
+	}
+
+	Expect(delays.GetDelay(request3, false)).To(BeNil())
+}
+
+func TestGetDelayShouldIgnoreDestinationIfWebserverBooleanIsTrue(t *testing.T) {
+	RegisterTestingT(t)
+
+	delay := ResponseDelay{
+		Destination: StringToPointer("example.com"),
+		Path:        StringToPointer("/api/delay"),
+		Delay:       100,
+	}
+	delays := ResponseDelayList{delay}
+
+	request1 := RequestDetails{
+		Destination: "example.com",
+		Path:        "/api/delay",
+	}
+
+	Expect(*delays.GetDelay(request1, true)).To(Equal(delay))
+
+	request2 := RequestDetails{
+		Destination: "ignored.com",
+		Path:        "/api/delay",
+	}
+
+	Expect(*delays.GetDelay(request2, true)).To(Equal(delay))
+
+	request3 := RequestDetails{
+		Destination: "nodelay.com",
+		Path:        "/api/nodelay",
+	}
+
+	Expect(delays.GetDelay(request3, true)).To(BeNil())
+}
+
+func TestGetDelayWillIterateUntilItFindsAMatch(t *testing.T) {
+	RegisterTestingT(t)
+
+	delay1 := ResponseDelay{
+		Destination: StringToPointer("wrongdely.org"),
+		Delay:       100,
+	}
+	delay2 := ResponseDelay{
+		Destination: StringToPointer("example.com"),
+		Body:        StringToPointer("h*llo"),
+		Delay:       100,
+	}
+	delays := ResponseDelayList{delay1, delay2}
+
+	request1 := RequestDetails{
+		Destination: "example.com",
+		Body:        "hallo",
+	}
+
+	Expect(*delays.GetDelay(request1, false)).To(Equal(delay2))
 }
