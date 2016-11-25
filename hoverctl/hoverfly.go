@@ -548,6 +548,16 @@ func (h *Hoverfly) start(hoverflyDirectory HoverflyDirectory) error {
 	return nil
 }
 
+func (h *Hoverfly) stopBinary(pid int) error {
+	hoverflyProcess := os.Process{Pid: pid}
+	err := hoverflyProcess.Kill()
+	if err != nil {
+		log.Info(err.Error())
+		return errors.New("Could not kill Hoverfly")
+	}
+	return nil
+}
+
 func (h *Hoverfly) stop(hoverflyDirectory HoverflyDirectory) error {
 	if !h.isLocal() {
 		return errors.New("hoverctl can not stop an instance of Hoverfly on a remote host")
@@ -564,12 +574,7 @@ func (h *Hoverfly) stop(hoverflyDirectory HoverflyDirectory) error {
 		return errors.New("Hoverfly is not running")
 	}
 
-	hoverflyProcess := os.Process{Pid: pid}
-	err = hoverflyProcess.Kill()
-	if err != nil {
-		log.Info(err.Error())
-		return errors.New("Could not kill Hoverfly")
-	}
+	h.stopBinary(pid)
 
 	err = hoverflyDirectory.DeletePid(h.AdminPort, h.ProxyPort)
 	if err != nil {
