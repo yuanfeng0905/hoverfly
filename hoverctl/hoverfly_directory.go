@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"regexp"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/mitchellh/go-homedir"
 )
@@ -38,6 +40,34 @@ func NewHoverflyDirectory(config Config) (HoverflyDirectory, error) {
 	}
 
 	return hoverflyDirectory, nil
+}
+
+func (h *HoverflyDirectory) GetAllPids() ([]int, error) {
+	pids := []int{}
+
+	files, err := ioutil.ReadDir(h.Path)
+	if err != nil {
+		log.Debug(err.Error())
+		return nil, errors.New("Could not find directory")
+	}
+	pattern, err := regexp.Compile(`hoverfly.(\d{1,5}).(\d{1,5}).pid`)
+	if err != nil {
+		log.Debug(err.Error())
+		return nil, errors.New("Could not compile regex expression")
+	}
+
+	for _, fileInfo := range files {
+		// This should return something like This
+		// ["hoverfly", "8888", "8500"]
+		results := pattern.FindSubmatch([]byte(fileInfo.Name()))
+
+		if len(results) == 3 {
+			pid, _ := h.GetPid(string(results[1]), string(results[2]))
+			pids = append(pids, pid)
+		}
+	}
+
+	return pids, nil
 }
 
 func (h *HoverflyDirectory) GetPid(adminPort, proxyPort string) (int, error) {

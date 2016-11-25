@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/mitchellh/go-homedir"
-	. "github.com/onsi/gomega"
 	"io/ioutil"
 	"os"
 	"testing"
+
+	"github.com/mitchellh/go-homedir"
+	. "github.com/onsi/gomega"
 )
 
 var hoverflyDirectory_testDirectory = "/tmp/hoverctl-hoverfly-directory-test"
@@ -77,6 +78,75 @@ func Test_GetPid_ReturnsZeroIfFileIsNotFound(t *testing.T) {
 	Expect(err).To(BeNil())
 
 	hoverflyDirectory_teardown()
+}
+
+func Test_GetAllPids_CanReturnMultiplePids(t *testing.T) {
+	RegisterTestingT(t)
+	hoverflyDirectory_setup()
+
+	ioutil.WriteFile(hoverflyDirectory_testDirectory+"/hoverfly.2334.1245.pid", []byte("17"), 0644)
+	ioutil.WriteFile(hoverflyDirectory_testDirectory+"/hoverfly.5678.1234.pid", []byte("18"), 0644)
+
+	hoverflyDirectory := HoverflyDirectory{
+		Path: hoverflyDirectory_testDirectory,
+	}
+
+	result, err := hoverflyDirectory.GetAllPids()
+	Expect(err).To(BeNil())
+
+	Expect(result).To(HaveLen(2))
+	Expect(result[0]).To(Equal(17))
+	Expect(result[1]).To(Equal(18))
+
+	hoverflyDirectory_teardown()
+}
+
+func Test_GetAllPids_CanReturnZeroPids(t *testing.T) {
+	RegisterTestingT(t)
+	hoverflyDirectory_setup()
+
+	hoverflyDirectory := HoverflyDirectory{
+		Path: hoverflyDirectory_testDirectory,
+	}
+
+	result, err := hoverflyDirectory.GetAllPids()
+	Expect(err).To(BeNil())
+
+	Expect(result).To(HaveLen(0))
+
+	hoverflyDirectory_teardown()
+}
+
+func Test_GetAllPids_DoesNotReturnPidsFromLogFiles(t *testing.T) {
+	RegisterTestingT(t)
+	hoverflyDirectory_setup()
+
+	ioutil.WriteFile(hoverflyDirectory_testDirectory+"/hoverfly.1234.6543.log", []byte("42"), 0644)
+
+	hoverflyDirectory := HoverflyDirectory{
+		Path: hoverflyDirectory_testDirectory,
+	}
+
+	result, err := hoverflyDirectory.GetAllPids()
+	Expect(err).To(BeNil())
+
+	Expect(result).To(HaveLen(0))
+
+	hoverflyDirectory_teardown()
+}
+
+func Test_GetAllPids_ErrorsWhenTryingToLookForPidsInNonExistentDirectory(t *testing.T) {
+	RegisterTestingT(t)
+
+	hoverflyDirectory := HoverflyDirectory{
+		Path: "/non-existent-directory",
+	}
+
+	result, err := hoverflyDirectory.GetAllPids()
+	Expect(err).ToNot(BeNil())
+	Expect(err.Error()).To(Equal("Could not find directory"))
+
+	Expect(result).To(HaveLen(0))
 }
 
 func Test_WritePid(t *testing.T) {
