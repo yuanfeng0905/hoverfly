@@ -69,6 +69,8 @@ var (
 	destination = flag.String("destination", ".", "destination URI to catch")
 	webserver   = flag.Bool("webserver", false, "start Hoverfly in webserver mode (simulate mode)")
 
+	logs = flag.String("logs", "json", "set the format for the logs (json|text)")
+
 	addNew      = flag.Bool("add", false, "add new user '-add -username hfadmin -password hfpass'")
 	addUser     = flag.String("username", "", "username for new user")
 	addPassword = flag.String("password", "", "password for new user")
@@ -149,10 +151,18 @@ func init() {
 }
 
 func main() {
-	log.SetFormatter(&log.JSONFormatter{})
+
 	flag.Var(&importFlags, "import", "import from file or from URL (i.e. '-import my_service.json' or '-import http://mypage.com/service_x.json'")
 	flag.Var(&destinationFlags, "dest", "specify which hosts to process (i.e. '-dest fooservice.org -dest barservice.org -dest catservice.org') - other hosts will be ignored will passthrough'")
 	flag.Parse()
+
+	switch *logs {
+	case "json":
+		log.SetFormatter(&log.JSONFormatter{})
+
+	case "text":
+		log.SetFormatter(&log.TextFormatter{})
+	}
 
 	if *version {
 		fmt.Println(hoverflyVersion)
