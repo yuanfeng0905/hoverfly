@@ -20,6 +20,7 @@ var (
 		HoverflyCertificate: "",
 		HoverflyKey:         "",
 		HoverflyDisableTls:  false,
+		HoverflyLogFormat:   "text",
 	}
 )
 
@@ -271,6 +272,57 @@ func Test_Config_DisableTls_DoesNotOverridesDefaultValueIfDefaultIsPositive(t *t
 
 	expected := defaultConfig
 	expected.HoverflyDisableTls = true
+
+	Expect(*result).To(Equal(expected))
+}
+
+func Test_Config_SetLogFormat_OverridesDefaultValue(t *testing.T) {
+	RegisterTestingT(t)
+
+	SetConfigurationDefaults()
+	result := GetConfig().SetLogFormat("json")
+
+	expected := defaultConfig
+	expected.HoverflyLogFormat = "json"
+
+	Expect(*result).To(Equal(expected))
+}
+
+func Test_Config_SetLogFormat_DoesNotOverrideIfEmptyString(t *testing.T) {
+	RegisterTestingT(t)
+
+	SetConfigurationDefaults()
+	result := GetConfig().SetLogFormat("")
+
+	expected := defaultConfig
+
+	Expect(*result).To(Equal(expected))
+}
+
+func Test_Config_SetLogFormat_DoesNotOverrideIfNotGivenTextOrJson(t *testing.T) {
+	RegisterTestingT(t)
+
+	SetConfigurationDefaults()
+
+	result := GetConfig()
+	result.SetLogFormat("not-a-format")
+
+	expected := defaultConfig
+
+	Expect(*result).To(Equal(expected))
+}
+
+func Test_Config_SetLogFormat_OverrideIfGivenText(t *testing.T) {
+	RegisterTestingT(t)
+
+	SetConfigurationDefaults()
+
+	result := GetConfig()
+	result.HoverflyLogFormat = "json"
+	result.SetLogFormat("text")
+
+	expected := defaultConfig
+	expected.HoverflyLogFormat = "text"
 
 	Expect(*result).To(Equal(expected))
 }

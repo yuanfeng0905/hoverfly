@@ -22,6 +22,7 @@ type Config struct {
 	HoverflyCertificate string `yaml:"hoverfly.tls.certificate"`
 	HoverflyKey         string `yaml:"hoverfly.tls.key"`
 	HoverflyDisableTls  bool   `yaml:"hoverfly.tls.disable"`
+	HoverflyLogFormat   string `yaml:"hoverfly.logs.format"`
 }
 
 func GetConfig() *Config {
@@ -41,6 +42,7 @@ func GetConfig() *Config {
 		HoverflyCertificate: viper.GetString("hoverfly.tls.certificate"),
 		HoverflyKey:         viper.GetString("hoverfly.tls.key"),
 		HoverflyDisableTls:  viper.GetBool("hoverfly.tls.disable"),
+		HoverflyLogFormat:   viper.GetString("hoverfly.logs.format"),
 	}
 }
 
@@ -126,6 +128,13 @@ func (this *Config) DisableTls(disableTls bool) *Config {
 	return this
 }
 
+func (this *Config) SetLogFormat(logFormat string) *Config {
+	if logFormat == "json" || logFormat == "text" {
+		this.HoverflyLogFormat = logFormat
+	}
+	return this
+}
+
 func (c *Config) WriteToFile(hoverflyDirectory HoverflyDirectory) error {
 	data, err := yaml.Marshal(c)
 
@@ -196,4 +205,5 @@ func SetConfigurationDefaults() {
 	viper.SetDefault("hoverfly.tls.certificate", "")
 	viper.SetDefault("hoverfly.tls.key", "")
 	viper.SetDefault("hoverfly.tls.disable", false)
+	viper.SetDefault("hoverfly.logs.format", "text")
 }
