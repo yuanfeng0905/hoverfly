@@ -24,6 +24,7 @@ var (
 	certificateFlag = kingpin.Flag("certificate", "Supply path for custom certificate").String()
 	keyFlag         = kingpin.Flag("key", "Supply path for custom key").String()
 	disableTlsFlag  = kingpin.Flag("disable-tls", "Disable TLS verification").Bool()
+	logFormatFlag   = kingpin.Flag("log-format", "Set the format of the logs for Hoverfly").String()
 
 	modeCommand = kingpin.Command("mode", "Get Hoverfly's current mode")
 	modeNameArg = modeCommand.Arg("name", "Set Hoverfly's mode").String()
@@ -86,6 +87,7 @@ func main() {
 	config = config.SetCertificate(*certificateFlag)
 	config = config.SetKey(*keyFlag)
 	config = config.DisableTls(*disableTlsFlag)
+	config = config.SetLogFormat(*logFormatFlag)
 
 	hoverflyDirectory, err := NewHoverflyDirectory(*config)
 	handleIfError(err)
