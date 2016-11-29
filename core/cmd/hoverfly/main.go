@@ -69,7 +69,7 @@ var (
 	destination = flag.String("destination", ".", "destination URI to catch")
 	webserver   = flag.Bool("webserver", false, "start Hoverfly in webserver mode (simulate mode)")
 
-	logs = flag.String("logs", "json", "set the format for the logs (json|text)")
+	logs = flag.String("log-format", "json", "set the format for the logs (json|text)")
 
 	addNew      = flag.Bool("add", false, "add new user '-add -username hfadmin -password hfpass'")
 	addUser     = flag.String("username", "", "username for new user")
