@@ -156,21 +156,23 @@ func main() {
 	flag.Var(&destinationFlags, "dest", "specify which hosts to process (i.e. '-dest fooservice.org -dest barservice.org -dest catservice.org') - other hosts will be ignored will passthrough'")
 	flag.Parse()
 
+	// getting settings
+	cfg := hv.InitSettings()
+
 	switch *logs {
 	case "json":
 		log.SetFormatter(&log.JSONFormatter{})
+		cfg.LogFormat = "json"
 
 	case "text":
 		log.SetFormatter(&log.TextFormatter{})
+		cfg.LogFormat = "text"
 	}
 
 	if *version {
 		fmt.Println(hoverflyVersion)
 		os.Exit(0)
 	}
-
-	// getting settings
-	cfg := hv.InitSettings()
 
 	if *verbose {
 		// Only log the warning severity or above.

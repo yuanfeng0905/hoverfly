@@ -26,7 +26,6 @@ func (this *AdminApi) StartAdminInterface(hoverfly *Hoverfly) {
 
 	// starting admin interface
 	mux := this.getBoneRouter(hoverfly)
-	n := negroni.Classic()
 
 	logLevel := log.ErrorLevel
 
@@ -34,7 +33,15 @@ func (this *AdminApi) StartAdminInterface(hoverfly *Hoverfly) {
 		logLevel = log.DebugLevel
 	}
 
-	n.Use(negronilogrus.NewCustomMiddleware(logLevel, &log.JSONFormatter{}, "admin"))
+	var formatter log.Formatter
+	formatter = &log.TextFormatter{}
+
+	if hoverfly.Cfg.LogFormat == "json" {
+		formatter = &log.JSONFormatter{}
+	}
+
+	n := negroni.New(negroni.NewRecovery(), negronilogrus.NewCustomMiddleware(logLevel, formatter, "admin"), negroni.NewStatic(http.Dir("public")))
+
 	n.UseHandler(mux)
 
 	// admin interface starting message

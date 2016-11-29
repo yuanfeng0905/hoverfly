@@ -21,6 +21,7 @@ type Configuration struct {
 	TLSVerification bool
 
 	Verbose     bool
+	LogFormat   string
 	Development bool
 
 	SecretKey          []byte
