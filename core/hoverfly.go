@@ -4,6 +4,12 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
+	"io/ioutil"
+	"net"
+	"net/http"
+	"sync"
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 	authBackend "github.com/SpectoLabs/hoverfly/core/authentication/backends"
 	"github.com/SpectoLabs/hoverfly/core/cache"
@@ -11,11 +17,6 @@ import (
 	"github.com/SpectoLabs/hoverfly/core/metrics"
 	"github.com/SpectoLabs/hoverfly/core/models"
 	"github.com/rusenask/goproxy"
-	"io/ioutil"
-	"net"
-	"net/http"
-	"sync"
-	"time"
 )
 
 // SimulateMode - default mode when Hoverfly looks for captured requests to respond
@@ -260,7 +261,7 @@ func (hf *Hoverfly) captureRequest(req *http.Request) (*http.Response, error) {
 		log.WithFields(log.Fields{
 			"error": err.Error(),
 			"mode":  "capture",
-		}).Error("Got error when reading body after being modified by middleware")
+		}).Error("Got error while executing request")
 	}
 
 	reqBody, err = ioutil.ReadAll(req.Body)
@@ -294,6 +295,13 @@ func (hf *Hoverfly) doRequest(request *http.Request) (*http.Request, *http.Respo
 	request.RequestURI = ""
 
 	if hf.Cfg.Middleware != "" {
+		log.WithFields(log.Fields{
+			"mode":   hf.Cfg.Mode,
+			"host":   request.Host,
+			"method": request.Method,
+			"path":   request.URL.Path,
+		}).Debug("Modifying request")
+
 		// middleware is provided, modifying request
 		var requestResponsePair models.RequestResponsePair
 
@@ -316,6 +324,13 @@ func (hf *Hoverfly) doRequest(request *http.Request) (*http.Request, *http.Respo
 			}).Error("could not forward request, middleware failed to modify request.")
 			return nil, nil, err
 		}
+
+		log.WithFields(log.Fields{
+			"mode":   hf.Cfg.Mode,
+			"host":   request.Host,
+			"method": request.Method,
+			"path":   request.URL.Path,
+		}).Debug("Request modified")
 
 		request, err = c.ReconstructRequest()
 
