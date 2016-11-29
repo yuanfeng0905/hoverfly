@@ -186,6 +186,10 @@ func (this Config) BuildFlags() Flags {
 		flags = append(flags, "-tls-verification=false")
 	}
 
+	if this.HoverflyLogFormat == "json" {
+		flags = append(flags, "-log-format=json")
+	}
+
 	return flags
 }
 

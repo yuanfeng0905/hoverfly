@@ -473,6 +473,17 @@ func Test_Config_BuildFlags_KeySetsKeyFlag(t *testing.T) {
 	Expect(unit.BuildFlags()[0]).To(Equal("-key=key.pem"))
 }
 
+func Test_Config_BuildFlags_JsonLogFormatSetLogFormatFlag(t *testing.T) {
+	RegisterTestingT(t)
+
+	unit := Config{
+		HoverflyLogFormat: "json",
+	}
+
+	Expect(unit.BuildFlags()).To(HaveLen(1))
+	Expect(unit.BuildFlags()[0]).To(Equal("-log-format=json"))
+}
+
 func Test_Config_BuildFlags_DisableTlsSetsTlsVerificationFlagToFalse(t *testing.T) {
 	RegisterTestingT(t)
 
