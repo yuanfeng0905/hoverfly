@@ -38,24 +38,15 @@ var (
 func TestHoverflyEndToEnd(t *testing.T) {
 	os.Mkdir(generatedTestData, os.ModePerm)
 
+	workingDirectory, _ = os.Getwd()
+	hoverctlCacheDir = filepath.Join(workingDirectory, ".hoverfly/cache")
+	hoverctlBinary = filepath.Join(workingDirectory, "bin/hoverctl")
+
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Hoverfly End To End Suite")
 
 	os.RemoveAll(generatedTestData)
 }
-
-var _ = BeforeSuite(func() {
-	workingDirectory, _ = os.Getwd()
-
-	hoverctlCacheDir = filepath.Join(workingDirectory, ".hoverfly/cache")
-
-	hoverctlBinary = filepath.Join(workingDirectory, "bin/hoverctl")
-
-	binDirectory := filepath.Join(workingDirectory, "bin")
-
-	os.Setenv("PATH", fmt.Sprintf("%v:%v", binDirectory, os.Getenv("PATH")))
-
-})
 
 func SetHoverflyMode(mode string, port int) {
 	req := sling.New().Post(fmt.Sprintf("http://localhost:%v/api/state", port)).Body(strings.NewReader(`{"mode":"` + mode + `"}`))
