@@ -25,16 +25,16 @@ var _ = Describe("When I use hoverctl with a running an authenticated hoverfly",
 		password = "ft_password"
 	)
 
+	BeforeEach(func() {
+		hoverflyCmd = startHoverflyWithAuth(adminPort, proxyPort, workingDirectory, username, password)
+		WriteConfigurationWithAuth("localhost", adminPortAsString, proxyPortAsString, false, username, password)
+	})
+
+	AfterEach(func() {
+		hoverflyCmd.Process.Kill()
+	})
+
 	Describe("and the credentials are in the hoverctl config", func() {
-
-		BeforeEach(func() {
-			hoverflyCmd = startHoverflyWithAuth(adminPort, proxyPort, workingDirectory, username, password)
-			WriteConfigurationWithAuth("localhost", adminPortAsString, proxyPortAsString, false, username, password)
-		})
-
-		AfterEach(func() {
-			hoverflyCmd.Process.Kill()
-		})
 
 		Context("you can get the mode", func() {
 
@@ -131,12 +131,7 @@ var _ = Describe("When I use hoverctl with a running an authenticated hoverfly",
 	Describe("and the credentials are not the hoverctl config", func() {
 
 		BeforeEach(func() {
-			hoverflyCmd = startHoverflyWithAuth(adminPort, proxyPort, workingDirectory, username, password)
 			WriteConfiguration("localhost", adminPortAsString, proxyPortAsString)
-		})
-
-		AfterEach(func() {
-			hoverflyCmd.Process.Kill()
 		})
 
 		Context("you cannot get the mode", func() {
