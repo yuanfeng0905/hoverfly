@@ -1,0 +1,15 @@
+---
+layout: default
+title:  "What is Hoverfly?"
+---
+
+<h2 id="what">What is Hoverfly?</h2> 
+
+Hoverfly is a lightweight, open source API simulation tool. Using Hoverfly, you can create realistic simulations of the APIs your application depends on.
+
+- Replace slow, flaky API dependencies with re-usable simulations
+- Simulate network latency, random failures or rate limits to test edge-cases
+- Extend and customize with any programming language
+- Export, share, edit and import simulations
+- CLI and native language bindings for [Java](https://hoverfly-java.readthedocs.io/en/latest/) and [Python](http://hoverpy.readthedocs.io/en/latest/)
+- REST API

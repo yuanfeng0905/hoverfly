@@ -1,0 +1,22 @@
+# Setup
+title:        Hoverfly
+tagline:      Simulate APIs for development and testing
+baseurl:      ""
+paginate:     1
+
+hf_repo:      https://github.com/SpectoLabs/hoverfly/
+hf_version:   v0.10.0
+
+ga_tracker:   UA-66641732-4
+
+# About/contact
+author:
+  name:       SpectoLabs
+  url:        https://specto.io
+
+# Gems
+gems:
+  - jekyll-paginate
+
+#Others
+markdown: kramdown

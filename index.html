@@ -1,0 +1,14 @@
+---
+layout: default
+title: {{ site.name }}
+---
+
+
+<div id="home">
+  <ul class="posts">
+    {% for post in site.posts reversed %}
+     {{ post.content }}
+     <hr>
+    {% endfor %}
+  </ul>
+</div>

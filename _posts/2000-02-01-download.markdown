@@ -1,0 +1,32 @@
+---
+layout: default
+title:  "Download"
+---
+
+
+<h2 id="download">Download</h2> 
+
+<p>Download an archive and extract it to a directory on your PATH:</p>
+
+<span>
+<i class="fa fa-apple fa-2x" aria-hidden="true"></i>&nbsp; MacOS 
+<a href="{{ site.hf_repo }}releases/download/{{ site.hf_version }}/hoverfly_bundle_OSX_amd64.zip">64bit</a>
+</span>&nbsp;&nbsp;&nbsp;&nbsp;
+<span>
+<i class="fa fa-linux fa-2x" aria-hidden="true"></i>&nbsp; Linux
+<a href="{{ site.hf_repo }}releases/download/{{ site.hf_version }}/hoverfly_bundle_linux_amd64.zip">64bit</a> | 
+<a href="{{ site.hf_repo }}releases/download/{{ site.hf_version }}/hoverfly_bundle_linux_386.zip">32bit</a>
+</span>&nbsp;&nbsp;&nbsp;&nbsp;
+<span>
+<i class="fa fa-windows fa-2x" aria-hidden="true"></i>&nbsp; Windows 
+<a href="{{ site.hf_repo }}releases/download/{{ site.hf_version }}/hoverfly_bundle_windows_amd64.zip">64bit</a> | 
+<a href="{{ site.hf_repo }}releases/download/{{ site.hf_version }}/hoverfly_bundle_windows_386.zip">32bit</a>
+</span>
+<br><br>
+
+
+Or if you have [Homebrew](http://brew.sh/):
+
+{% highlight shell %}
+brew install SpectoLabs/tap/hoverfly
+{% endhighlight %}
