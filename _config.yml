@@ -1,7 +1,7 @@
 # Setup
 title:        Hoverfly
 tagline:      Simulate APIs for development and testing
-baseurl:      ""
+baseurl:      "http://hoverfly.io"
 paginate:     1
 
 hf_repo:      https://github.com/SpectoLabs/hoverfly/
