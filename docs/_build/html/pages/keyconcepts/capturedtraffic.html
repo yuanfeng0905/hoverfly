@@ -1,0 +1,280 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Captured traffic &mdash; Hoverfly v0.10.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="https://media.readthedocs.org/css/sphinx_rtd_theme.css" type="text/css" />
+  
+    <link rel="stylesheet" href="https://media.readthedocs.org/css/readthedocs-doc-embed.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../../_static/theme_overrides.css" type="text/css" />
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="Hoverfly v0.10.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Key Concepts" href="keyconcepts.html"/>
+        <link rel="next" title="Templates" href="templates.html"/>
+        <link rel="prev" title="Simulations" href="simulations/simulations.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Hoverfly
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                v0.10.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction/introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="keyconcepts.html">Key Concepts</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="proxyserver.html">Hoverfly as a proxy server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="webserver.html">Hoverfly as a webserver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modes/modes.html">Hoverfly modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulations/simulations.html">Simulations</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Captured traffic</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#request-response-pairs">Request response pairs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#matching">Matching</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="templates.html">Templates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="destinationfiltering.html">Destination filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meta.html">Meta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="delays.html">Delays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="middleware.html">Middleware</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bindings/bindings.html">Native language bindings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/reference.html">Reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">Hoverfly</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="keyconcepts.html">Key Concepts</a> &raquo;</li>
+      
+    <li>Captured traffic</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/pages/keyconcepts/capturedtraffic.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="captured-traffic">
+<span id="id1"></span><h1>Captured traffic<a class="headerlink" href="#captured-traffic" title="Permalink to this headline">¶</a></h1>
+<p>Hoverfly&#8217;s core functionality is to capture requests and responses (&#8220;traffic&#8221;) to create API simulations.</p>
+<div class="section" id="request-response-pairs">
+<h2>Request response pairs<a class="headerlink" href="#request-response-pairs" title="Permalink to this headline">¶</a></h2>
+<p>When you capture traffic using Hoverfly&#8217;s <a class="reference internal" href="modes/capture.html#capture-mode"><span class="std std-ref">Capture mode</span></a> and export resulting the simulation to JSON, you will see <em>request response pairs</em>:</p>
+<div class="code json highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;response&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="s2">&quot;body&quot;</span><span class="p">:</span> <span class="s2">&quot;body here&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;encodedBody&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+    <span class="s2">&quot;headers&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;text/html; charset=utf-8&quot;</span><span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;requestType&quot;</span><span class="p">:</span> <span class="s2">&quot;recording&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;GET&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;destination&quot;</span><span class="p">:</span> <span class="s2">&quot;myhost.io&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;scheme&quot;</span><span class="p">:</span> <span class="s2">&quot;https&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;body&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;headers&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;Accept&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8&quot;</span><span class="p">],</span>
+      <span class="s2">&quot;User-Agent&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36&quot;</span><span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Notice the <code class="docutils literal"><span class="pre">&quot;response&quot;</span></code> and <code class="docutils literal"><span class="pre">&quot;request&quot;</span></code> key values in the document above. They both contain all of the fields from the original request and response. The headers are also stored.</p>
+<p>Please also notice the <code class="docutils literal"><span class="pre">&quot;requestType&quot;</span></code> key, with its corresponding <code class="docutils literal"><span class="pre">&quot;recording&quot;</span></code> value: this denotes that the request response pair was created while using Hoverfly in <a class="reference internal" href="modes/capture.html#capture-mode"><span class="std std-ref">Capture mode</span></a>, and that in <a class="reference internal" href="modes/simulate.html#simulate-mode"><span class="std std-ref">Simulate mode</span></a>, Hoverfly will return this exact response when it receives this request.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Since JSON does not support binary data, binary responses are base64 encoded. This is denoted by the encodedBody field. Hoverfly automatically encodes and decodes the data during the export and import phases.</p>
+</div>
+</div>
+<div class="section" id="matching">
+<h2>Matching<a class="headerlink" href="#matching" title="Permalink to this headline">¶</a></h2>
+<p>Hoverfly simulates APIs by <cite>matching</cite> responses to incoming requests.</p>
+<p>Imagine scanning through a dictionary for a word, and then looking up its definition. Hoverfly does exactly that, but the &#8220;word&#8221; is the URL that was &#8220;recorded&#8221; in <a class="reference internal" href="modes/capture.html#capture-mode"><span class="std std-ref">Capture mode</span></a>, plus all the fields in the <code class="docutils literal"><span class="pre">&quot;request&quot;</span></code> part of the document above, with the exception of the headers.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The reason headers are not included in the match is because they can vary depending on the client.</p>
+</div>
+<p>This one-to-one matching strategy is extremely fast, but in some cases you may want Hoverfly to return a single response for more than one request. This is possible using <a class="reference internal" href="templates.html#templates"><span class="std std-ref">Templates</span></a>.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="templates.html" class="btn btn-neutral float-right" title="Templates" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="simulations/simulations.html" class="btn btn-neutral" title="Simulations" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, SpectoLabs.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'v0.10.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
