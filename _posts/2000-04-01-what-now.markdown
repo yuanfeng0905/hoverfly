@@ -6,7 +6,7 @@ title:  "What now?"
 <h2 id="what-now">What now?</h2> 
 
 - Read the [Hoverfly docs](https://docs.hoverfly.io)
-- Do some [tutorials](https://docs.hoverfly.io/en/latest/pages/tutorials/tutorials.html)
+- Do some [tutorials](https://docs.hoverfly.io/en/stable/pages/tutorials/tutorials.html)
 - Find out about [Hoverfly Java](https://hoverfly-java.readthedocs.io/en/latest/)
 - Get started with [HoverPy](http://hoverpy.io) (a Hoverfly Python library)
 - Take a look at the code on [GitHub](https://github.com/SpectoLabs/hoverfly)
