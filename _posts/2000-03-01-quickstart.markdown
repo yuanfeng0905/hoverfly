@@ -8,8 +8,8 @@ title:  "Quickstart"
 Hoverfly comes with a command line tool called **hoverctl**. 
 
 {% highlight shell %}
-hoverctl --version
-hoverfly --version
+hoverctl version
+hoverfly -version
 {% endhighlight %}
 
 Both of these commands should return a version number. Now you can run an instance of Hoverfly.
